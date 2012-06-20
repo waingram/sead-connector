@@ -1,0 +1,5 @@
+curl -u waingram@gmail.com:waingram -H 'Accept: application/json' http://localhost:8080/sead/communities
+curl -u waingram@gmail.com:waingram -H 'Accept: application/atom+json;type=feed' http://localhost:8080/sead/communities
+curl -u waingram@gmail.com:waingram -H 'Accept: application/atom+xml;type=feed' http://localhost:8080/sead/communities
+curl -u waingram@gmail.com:waingram -H 'Accept: text/xml' http://localhost:8080/sead/communities
+curl -v http://localhost:8080/sead/communities -u waingram@gmail.com:waingram -H 'Content-type: application/xml' -X POST -d '@community.xml'

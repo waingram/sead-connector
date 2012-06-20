@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This web.xml file is not required when using Servlet 3.0 container, 
+     see implementation details http://jersey.java.net/nonav/documentation/latest/jax-rs.html#d4e194 -->
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    <display-name>IDEALS SEAD Deposit Service</display-name>
+
+    <!-- Configuration Information -->
+
+    <context-param>
+        <param-name>dspace-config</param-name>
+        <param-value>${dspace.dir}/config/dspace-sword.cfg</param-value>
+    </context-param>
+    <!-- new ConfigurationService initialization for dspace.dir -->
+    <context-param>
+        <description>
+            The location of the main DSpace configuration file
+        </description>
+        <param-name>dspace.dir</param-name>
+        <param-value>${dspace.dir}</param-value>
+    </context-param>
+
+    <!-- Listener to initialize / clean up the application -->
+    <listener>
+        <listener-class>org.dspace.app.util.DSpaceContextListener</listener-class>
+    </listener>
+<!--
+    <servlet>
+        <servlet-name>IDEALS SEAD Deposit Service</servlet-name>
+        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>edu.uiuc.ideals.sead</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
+            <param-value>edu.uiuc.ideals.sead.auth.SecurityFilter</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>IDEALS SEAD Deposit Service</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+-->
+
+    <filter>
+        <filter-name>IDEALS SEAD Deposit Service</filter-name>
+        <filter-class>com.sun.jersey.spi.container.servlet.ServletContainer</filter-class>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>edu.uiuc.ideals.sead</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.WebPageContentRegex</param-name>
+            <param-value>.*\.html|.*\.css|.*\.png|.*\.js|.*\.gif|.*\.jpg|.*\.eot|.*\.woff|.*\.ttf|.*\.svg</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
+            <param-value>edu.uiuc.ideals.sead.auth.SecurityFilter</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>IDEALS SEAD Deposit Service</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+</web-app>

@@ -1,0 +1,12 @@
+<entry  xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/">
+  <dc:type>Community</dc:type>
+  <dc:title>Test Community</dc:title>
+  <dc:rights>
+  </dc:rights>
+  <dcterms:alternative>Test for SEAD Project</dcterms:alternative>
+  <dcterms:abstract>This community was created by the IDEALS SEAD
+  Community/Collection REST Service.</dcterms:abstract>
+  <dcterms:isPartOf></dcterms:isPartOf>
+  <title type="text">Test Community</title>
+  <updated>2012-04-28T18:59:10-05:00</updated>
+</entry>
