@@ -1,16 +1,23 @@
 package edu.uiuc.ideals.sead;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.sun.jersey.atom.abdera.ContentHelper;
 import org.apache.abdera.model.Entry;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.eperson.EPerson;
 
 /**
@@ -19,6 +26,7 @@ import org.dspace.eperson.EPerson;
 public class CollectionResource extends BaseResource {
 
     private int collID;
+    private int communityID;
 
 
     /**
@@ -32,11 +40,12 @@ public class CollectionResource extends BaseResource {
                               ContentHelper contentHelper,
                               org.dspace.core.Context context,
                               EPerson ePerson,
-                              int collID) {
+                              int communityID, int collID) {
         this.uriInfo = uriInfo;
         this.contentHelper = contentHelper;
         this.context = context;
         this.ePerson = ePerson;
+        this.communityID = communityID;
         this.collID = collID;
     }
 
@@ -76,6 +85,102 @@ public class CollectionResource extends BaseResource {
                 type("text/plain").
                 entity("No collection for ID '" + collID + "'").
                 build();
+    }
+    
+    /**
+     * <p>Update an existing collection based on the specified information.</p>
+     */
+    @RolesAllowed("user")
+    @PUT
+    @Consumes({"application/atom+xml",
+            "application/atom+xml;type=entry",
+            "application/xml",
+            "text/xml"})    
+    public Response put(Entry entry) {
+    	
+        // Validate the incoming user information independent of the database
+    	Collection collection = null;
+    	entry.addExtension(DC_IDENTIFIER).setText(String.valueOf(collID));
+        try {
+        	collection = collectionFromEntry(entry);
+            context.complete();
+        } catch (SQLException e) {
+            log.error(e);
+            context.abort();
+            return Response.
+                    status(Response.Status.INTERNAL_SERVER_ERROR).
+                    type("text/plain").
+                    entity(e.getMessage()).
+                    build();
+        } catch (AuthorizeException e) {
+            log.error(e);
+            context.abort();
+            return Response.
+                    status(Response.Status.UNAUTHORIZED).
+                    type("text/plain").
+                    entity(e.getStackTrace()).
+                    build();
+        } catch (IOException e) {
+            log.error(e);
+            context.abort();
+            return Response.
+                    status(Response.Status.INTERNAL_SERVER_ERROR).
+                    type("text/plain").
+                    entity(e.getMessage()).
+                    build();
+        }
+        return Response.
+                    created(uriInfo.getRequestUriBuilder().path(collection.getHandle()).build()).
+                    build();
+
+    }
+    
+    
+    /**
+     * <p>Delete an existing collection based on the specified information.</p>
+     */
+    @RolesAllowed("user")
+    @DELETE    
+    public Response delete() {
+    	
+    	// Validate the incoming user information independent of the database
+
+    	Community community = null;
+    	Collection collection = null;
+        try {
+        	community = Community.find(context, communityID);
+        	collection= Collection.find(context, collID);
+        	community.removeCollection(collection);
+            context.complete();
+        } catch (SQLException e) {
+            log.error(e);
+            context.abort();
+            return Response.
+                    status(Response.Status.INTERNAL_SERVER_ERROR).
+                    type("text/plain").
+                    entity(e.getMessage()).
+                    build();
+        } catch (AuthorizeException e) {
+            log.error(e);
+            context.abort();
+            return Response.
+                    status(Response.Status.UNAUTHORIZED).
+                    type("text/plain").
+                    entity(e.getStackTrace()).
+                    build();
+        } catch (IOException e) {
+            log.error(e);
+            context.abort();
+            return Response.
+                    status(Response.Status.INTERNAL_SERVER_ERROR).
+                    type("text/plain").
+                    entity(e.getMessage()).
+                    build();
+        }
+        return Response.
+                    created(uriInfo.getRequestUriBuilder().path(community.getHandle()).build()).
+                    build();
+
     }
 }
 

@@ -2,7 +2,6 @@ package edu.uiuc.ideals.sead;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Community;
 import org.dspace.core.ConfigurationManager;
 
@@ -13,7 +12,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -46,15 +44,13 @@ public class CommunitiesResource extends BaseResource {
             "application/xml",
             "text/xml"})
     public Response get() {
-
-        List<Community> communityList = findAuthorizedCommunities(null);
-
-        Feed feed = abdera.newFeed();
+    	List<Community> communityList = findAuthorizedCommunities(null);
+        
+    	Feed feed = abdera.newFeed();
         feed.setId("collections");
         feed.setTitle(ConfigurationManager.getProperty("dspace.name"));
         feed.setUpdated(new Date());
         feed.addLink(uriInfo.getRequestUriBuilder().build().toString(), "self");
-
         for (Community community : communityList) {
             Entry entry = null;
             try {
@@ -70,57 +66,10 @@ public class CommunitiesResource extends BaseResource {
             }
             feed.addEntry(entry);
         }
-
+        
         return Response.ok(feed).build();
-    }
-
-    /**
-     * <p>Create a new collection based on the specified information.</p>
-     */
-    @RolesAllowed("user")
-    @POST
-    @Consumes({"application/atom+xml",
-            "application/atom+xml;type=entry",
-            "application/xml",
-            "text/xml"})
-    public Response post(Entry entry) {
-
-        // Validate the incoming user information independent of the database
-        Community community = null;
-        try {
-            community = communityFromEntry(entry);
-            context.complete();
-        } catch (SQLException e) {
-            log.error(e);
-            context.abort();
-            return Response.
-                    status(Response.Status.INTERNAL_SERVER_ERROR).
-                    type("text/plain").
-                    entity(e.getMessage()).
-                    build();
-        } catch (AuthorizeException e) {
-            log.error(e);
-            context.abort();
-            return Response.
-                    status(Response.Status.UNAUTHORIZED).
-                    type("text/plain").
-                    entity(e.getMessage()).
-                    build();
-        } catch (IOException e) {
-            log.error(e);
-            context.abort();
-            return Response.
-                    status(Response.Status.INTERNAL_SERVER_ERROR).
-                    type("text/plain").
-                    entity(e.getMessage()).
-                    build();
-        }
-        return Response.
-                    created(uriInfo.getRequestUriBuilder().path(community.getHandle()).build()).
-                    build();
-
-    }
-
+    }    
+    
 
     /**
      * <p>Return an instance of {@link CollectionResource} configured for the
@@ -128,11 +77,12 @@ public class CommunitiesResource extends BaseResource {
      *
      * @param communityID ID of the specified community
      */
-    @Path("{collID}")
-    public CommunityResource collection(@PathParam("communityID") int communityID) {
-        return new CommunityResource(uriInfo, contentHelper, context, ePerson, communityID);
+    @Path("{communityID}")
+    public CommunityResource community(@PathParam("communityID") int communityID) {
+    	return new CommunityResource(uriInfo, contentHelper, context, ePerson, communityID);
 
-    }
+    }    
+    
 
 }
 

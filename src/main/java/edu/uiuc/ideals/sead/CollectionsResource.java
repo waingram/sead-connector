@@ -1,5 +1,7 @@
 package edu.uiuc.ideals.sead;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -12,22 +14,24 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.core.ConfigurationManager;
 
 /**
  * Resource class hosted at the URI path "/collections"
  */
-@Path("/collections")
+@Path("/communities/{communityID}/collections")
 public class CollectionsResource extends BaseResource {
-
+	
+	
     public CollectionsResource(@Context UriInfo uriInfo,
                                @Context SecurityContext securityContext,
                                @Context HttpServletRequest request) {
@@ -38,7 +42,7 @@ public class CollectionsResource extends BaseResource {
     }
 
     /**
-     * <p>Return a set of collections the user can access.</p>
+     * <p>Return a set of collections the user can access in given Community.</p>
      */
     @RolesAllowed("user")
     @GET
@@ -49,25 +53,37 @@ public class CollectionsResource extends BaseResource {
             "application/json",
             "application/xml",
             "text/xml"})
-    public Response get() {
-
-        List<Collection> collectionList = findAuthorizedCollections(null);
-
-        Feed feed = abdera.newFeed();
+    public Response get(@PathParam("communityID") int parentCommunityID) {
+    	
+    	Feed feed = abdera.newFeed();
         feed.setId("collections");
         feed.setTitle(ConfigurationManager.getProperty("dspace.name"));
         feed.setUpdated(new Date());
         feed.addLink(uriInfo.getRequestUriBuilder().build().toString(), "self");
-
-        for (Collection collection : collectionList) {
-            Entry entry = abdera.newEntry();
-            entry.setId(String.valueOf(collection.getID()));
-            entry.setTitle(collection.getMetadata("name"));
-            entry.setRights(collection.getLicense());
-            entry.addLink(ConfigurationManager.getProperty("sword.deposit.url"));
-            contentHelper.setContentEntity(entry, MediaType.APPLICATION_XML_TYPE, collection);
-            feed.addEntry(entry);
-        }
+    	
+    	try {
+    		
+	        List<Collection> collectionList = findAuthorizedCollections(Community.find(context, parentCommunityID));
+	        
+	        for (Collection collection : collectionList) {
+	        	Entry entry = abdera.newEntry();
+			    entry.setId(String.valueOf(collection.getID()));
+			    entry.setTitle(collection.getMetadata("name"));
+			    entry.setRights(collection.getLicense());
+			    entry.addLink(ConfigurationManager.getProperty("sword.deposit.url"));
+			    //contentHelper.setContentEntity(entry, MediaType.APPLICATION_XML_TYPE, collection);
+			    feed.addEntry(entry);				
+	        }        	
+	        
+        } catch (SQLException e) {
+        	log.error(e);
+            context.abort();
+            return Response.
+                    status(Response.Status.INTERNAL_SERVER_ERROR).
+                    type("text/plain").
+                    entity(e.getMessage()).
+                    build();
+		}
 
         return Response.ok(feed).build();
     }
@@ -81,10 +97,40 @@ public class CollectionsResource extends BaseResource {
             "application/atom+xml;type=entry",
             "application/xml",
             "text/xml"})
-    public Response post(Entry entry) {
-
-        Collection collection = collectionFromEntry(entry);
-
+    public Response post(Entry entry, @PathParam("communityID") int parentCommunityID) {
+    	
+    	entry.addExtension(DCTERMS_ISPARTOF).setText(String.valueOf(parentCommunityID));
+        Collection collection = null;
+        try {
+        	System.out.println(entry);
+        	collection = collectionFromEntry(entry);
+            context.complete();
+        } catch (SQLException e) {
+            log.error(e);
+            context.abort();
+            return Response.
+                    status(Response.Status.INTERNAL_SERVER_ERROR).
+                    type("text/plain").
+                    entity(e.getMessage()).
+                    build();
+        } catch (AuthorizeException e) {
+            log.error(e);
+            context.abort();
+            return Response.
+                    status(Response.Status.UNAUTHORIZED).
+                    type("text/plain").
+                    entity(e.getStackTrace()).
+                    build();
+        } catch (IOException e) {
+            log.error(e);
+            context.abort();
+            return Response.
+                    status(Response.Status.INTERNAL_SERVER_ERROR).
+                    type("text/plain").
+                    entity(e.getMessage()).
+                    build();
+        }
+        
         return Response.created(uriInfo.getRequestUriBuilder().path(String.valueOf(collection.getID())).build()).
                 build();
 
@@ -98,8 +144,8 @@ public class CollectionsResource extends BaseResource {
      * @param collID ID of the specified collection
      */
     @Path("{collID}")
-    public CollectionResource collection(@PathParam("collID") int collID) {
-        return new CollectionResource(uriInfo, contentHelper, context, ePerson, collID);
+    public CollectionResource collection(@PathParam("communityID") int communityID, @PathParam("collID") int collID) {
+        return new CollectionResource(uriInfo, contentHelper, context, ePerson, communityID, collID);
 
     }
 
