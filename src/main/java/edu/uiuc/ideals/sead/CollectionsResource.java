@@ -113,22 +113,22 @@ public class CollectionsResource extends BaseResource {
                     type("text/plain").
                     entity(e.getMessage()).
                     build();
-        } catch (AuthorizeException e) {
-            log.error(e);
-            context.abort();
-            return Response.
-                    status(Response.Status.UNAUTHORIZED).
-                    type("text/plain").
-                    entity(e.getStackTrace()).
-                    build();
-        } catch (IOException e) {
-            log.error(e);
-            context.abort();
-            return Response.
-                    status(Response.Status.INTERNAL_SERVER_ERROR).
-                    type("text/plain").
-                    entity(e.getMessage()).
-                    build();
+        // } catch (AuthorizeException e) {
+        //     log.error(e);
+        //     context.abort();
+        //     return Response.
+        //             status(Response.Status.UNAUTHORIZED).
+        //             type("text/plain").
+        //             entity(e.getStackTrace()).
+        //             build();
+        // } catch (IOException e) {
+        //     log.error(e);
+        //     context.abort();
+        //     return Response.
+        //             status(Response.Status.INTERNAL_SERVER_ERROR).
+        //             type("text/plain").
+        //             entity(e.getMessage()).
+        //             build();
         }
         
         return Response.created(uriInfo.getRequestUriBuilder().path(String.valueOf(collection.getID())).build()).

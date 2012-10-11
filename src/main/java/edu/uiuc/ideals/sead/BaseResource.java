@@ -164,20 +164,20 @@ public abstract class BaseResource {
     /**
      * Define metadata namespaces and QNAMEs
      */
-    private final String DC = "http://purl.org/dc/elements/1.1/";
-    private final String DCTERMS = "http://purl.org/dc/terms/";
-    private final String DCMITYPE = "http://purl.org/dc/dcmitype/";
-    private final String MARCREL = "http://www.loc.gov/loc.terms/relators/";
-    private final String XSI = "http://www.w3.org/2001/XMLSchema-instance";
+    protected final String DC = "http://purl.org/dc/elements/1.1/";
+    protected final String DCTERMS = "http://purl.org/dc/terms/";
+    protected final String DCMITYPE = "http://purl.org/dc/dcmitype/";
+    protected final String MARCREL = "http://www.loc.gov/loc.terms/relators/";
+    protected final String XSI = "http://www.w3.org/2001/XMLSchema-instance";
 
-    private final QName DC_TYPE = new QName(DC, "type", "dc");
-    private final QName DC_IDENTIFIER = new QName(DC, "identifier", "dc");
-    private final QName DC_TITLE = new QName(DC, "title", "dc");
-    private final QName DC_RIGHTS = new QName(DC, "rights", "dc");
-    private final QName DCTERMS_ISPARTOF = new QName(DCTERMS, "isPartOf", "dcterms");
-    private final QName DCTERMS_ALTERNATIVE = new QName(DCTERMS, "alternative", "dcterms");
-    private final QName DCTERMS_ABSTRACT = new QName(DCTERMS, "abstract", "dcterms");
-    private final QName XSI_TYPE = new QName(XSI, "type", "xsi");
+    protected final QName DC_TYPE = new QName(DC, "type", "dc");
+    protected final QName DC_IDENTIFIER = new QName(DC, "identifier", "dc");
+    protected final QName DC_TITLE = new QName(DC, "title", "dc");
+    protected final QName DC_RIGHTS = new QName(DC, "rights", "dc");
+    protected final QName DCTERMS_ISPARTOF = new QName(DCTERMS, "isPartOf", "dcterms");
+    protected final QName DCTERMS_ALTERNATIVE = new QName(DCTERMS, "alternative", "dcterms");
+    protected final QName DCTERMS_ABSTRACT = new QName(DCTERMS, "abstract", "dcterms");
+    protected final QName XSI_TYPE = new QName(XSI, "type", "xsi");
 
 
     /**
