@@ -10,7 +10,7 @@ The following demonstrates how to use the IDEALS SEAD Web service. The
 application is capable of creating, reading, and querying IDEALS DSpace
 communities and collections.
 
-### Service API
+### Service API ###
 
 The API consists of four web resources implemented by the following:
 
@@ -30,37 +30,27 @@ The `collections` resource that returns a list of collections within a community
 
 The `collection` resource.
 
+
+
+### URI path Resource class HTTP methods ###
+
 The mapping of the URI path space is presented in the following table:
 
-URI path Resource class HTTP methods
-
 `/communities/`
-
-CommunitiesResource
-
-GET, POST
+CommunitiesResource - GET, POST
 
 `/communities/{communityId}`
-
-CommunityResource
-
-GET, PUT, DELETE*
+CommunityResource - GET, PUT, DELETE*
 
 `/communities/{communityId}/collections`
-
-CollectionsResource
-
-GET, POST
+CollectionsResource - GET, POST
 
 `/communities/{communityId}/collections/{collectionId}`
-
-CollectionResource
-
-GET, PUT, DELETE*
+CollectionResource - GET, PUT, DELETE*
 
 *Not implemented.
 
-### Example 1: Creating a new community
+### Example 1: Creating a new community ###
 
 `POST /communities`
 
@@ -96,7 +86,7 @@ Figure 1b: Server response
     Content-Length: 0
     Content-Type: text/plain
 
-### Example 2: Retrieving a list of communities
+### Example 2: Retrieving a list of communities ###
 
 `GET /communities`
 
@@ -149,20 +139,19 @@ Figure 2: Server response
         </entry>
     </feed>
 
-### SEAD: Sustainable Environment - Actionable Data
+### SEAD: Sustainable Environment - Actionable Data ###
 
 Sustainability science is a new and growing area of research that focuses on
 interactions between nature and human activities.
 
 [read on »](http://sead-data.net)
 
-[![](http://sead-data.net/sites/sead-data.net/themes/sead/images/footer-images
-/footer-images-02.png)](http://www.nsf.gov)
+[![](http://sead-data.net/sites/sead-data.net/themes/sead/images/footer-images/footer-images-02.png)](http://www.nsf.gov)
 
 SEAD is funded by the National Science Foundation under cooperative agreement
 **#OCI0940824**
 
-### Partner Institutes
+### Partner Institutes ###
 
 [![](http://sead-data.net/sites/sead-data.net/themes/sead/images/footer-images/footer-images-03.png)](http://illinois.edu/) [![](http://sead-data.net/sites/sead-data.net/themes/sead/images/footer-images/footer-images-04.png)](http://www.indiana.edu/)
 
