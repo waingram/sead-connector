@@ -1,12 +1,10 @@
-# IDEALS SEAD Deposit Service
+# IDEALS SEAD Deposit Service #
 
-  * [SEAD  
-Home](http://sead-data.net)
+  * [SEAD  Home](http://sead-data.net)
 
-  * [IDEALS  
-Home](http://ideals.illinois.edu)
+  * [IDEALS  Home](http://ideals.illinois.edu)
 
-  * ### RESTful Web Services Guide
+### RESTful Web Services Guide ###
 
 The following demonstrates how to use the IDEALS SEAD Web service. The
 application is capable of creating, reading, and querying IDEALS DSpace
@@ -18,39 +16,43 @@ The API consists of four web resources implemented by the following:
 
 `edu.uiuc.ideals.sead.CommunitiesResource`
 
-    The `communities` resource that returns a list of communities.
+The `communities` resource that returns a list of communities.
+
 `edu.uiuc.ideals.sead.CommunityResource`
 
-    The `community` resource.
+The `community` resource.
+
 `edu.uiuc.ideals.sead.CollectionsResource`
 
-    The `collections` resource that returns a list of collections within a community resource.
+The `collections` resource that returns a list of collections within a community resource.
+
 `edu.uiuc.ideals.sead.CollectionResource`
 
-    The `collection` resource.
+The `collection` resource.
+
 The mapping of the URI path space is presented in the following table:
 
 URI path Resource class HTTP methods
 
-/communities/
+`/communities/`
 
 CommunitiesResource
 
 GET, POST
 
-/communities/{communityId}
+`/communities/{communityId}`
 
 CommunityResource
 
 GET, PUT, DELETE*
 
-/communities/{communityId}/collections
+`/communities/{communityId}/collections`
 
 CollectionsResource
 
 GET, POST
 
-/communities/{communityId}/collections/{collectionId}
+`/communities/{communityId}/collections/{collectionId}`
 
 CollectionResource
 
@@ -162,21 +164,10 @@ SEAD is funded by the National Science Foundation under cooperative agreement
 
 ### Partner Institutes
 
-[![](http://sead-data.net/sites/sead-data.net/themes/sead/images/footer-images
-/footer-images-03.png)](http://illinois.edu/) [![](http://sead-data.net/sites
-/sead-data.net/themes/sead/images/footer-images/footer-
-images-04.png)](http://www.indiana.edu/)
+[![](http://sead-data.net/sites/sead-data.net/themes/sead/images/footer-images/footer-images-03.png)](http://illinois.edu/) [![](http://sead-data.net/sites/sead-data.net/themes/sead/images/footer-images/footer-images-04.png)](http://www.indiana.edu/)
 
-[![](http://sead-data.net/sites/sead-data.net/themes/sead/images/footer-images
-/footer-images-05.png)](http://rpi.edu/)
+[![](http://sead-data.net/sites/sead-data.net/themes/sead/images/footer-images/footer-images-05.png)](http://rpi.edu/)
 
-[![](http://sead-data.net/sites/sead-data.net/themes/sead/images/footer-images
-/footer-images-06.png)](http://www.umich.edu/)
+[![](http://sead-data.net/sites/sead-data.net/themes/sead/images/footer-images/footer-images-06.png)](http://www.umich.edu/)
 
-window.jQuery || document.write('<script
-src="js/vendor/jquery-1.7.2.min.js"><\/script>') var _gaq=[['_setAccount','UA-
-XXXXX-X'],['_trackPageview']]; (function(d,t){var
-g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-
-analytics.com/ga.js'; s.parentNode.insertBefore(g,s)}(document,'script'));
 
