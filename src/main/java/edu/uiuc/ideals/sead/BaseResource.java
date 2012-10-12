@@ -1,8 +1,6 @@
 package edu.uiuc.ideals.sead;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -12,8 +10,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 import com.sun.jersey.atom.abdera.ContentHelper;
@@ -164,20 +160,22 @@ public abstract class BaseResource {
     /**
      * Define metadata namespaces and QNAMEs
      */
-    protected final String DC = "http://purl.org/dc/elements/1.1/";
-    protected final String DCTERMS = "http://purl.org/dc/terms/";
-    protected final String DCMITYPE = "http://purl.org/dc/dcmitype/";
-    protected final String MARCREL = "http://www.loc.gov/loc.terms/relators/";
-    protected final String XSI = "http://www.w3.org/2001/XMLSchema-instance";
+    private final String DC = "http://purl.org/dc/elements/1.1/";
+    private final String DCTERMS = "http://purl.org/dc/terms/";
+    private final String DCMITYPE = "http://purl.org/dc/dcmitype/";
+    private final String MARCREL = "http://www.loc.gov/loc.terms/relators/";
+    private final String XSI = "http://www.w3.org/2001/XMLSchema-instance";
 
-    protected final QName DC_TYPE = new QName(DC, "type", "dc");
+    private final QName DC_TYPE = new QName(DC, "type", "dc");
     protected final QName DC_IDENTIFIER = new QName(DC, "identifier", "dc");
-    protected final QName DC_TITLE = new QName(DC, "title", "dc");
-    protected final QName DC_RIGHTS = new QName(DC, "rights", "dc");
+    private final QName DC_TITLE = new QName(DC, "title", "dc");
+    private final QName DC_RIGHTS = new QName(DC, "rights", "dc");
     protected final QName DCTERMS_ISPARTOF = new QName(DCTERMS, "isPartOf", "dcterms");
-    protected final QName DCTERMS_ALTERNATIVE = new QName(DCTERMS, "alternative", "dcterms");
-    protected final QName DCTERMS_ABSTRACT = new QName(DCTERMS, "abstract", "dcterms");
-    protected final QName XSI_TYPE = new QName(XSI, "type", "xsi");
+    private final QName DCTERMS_ALTERNATIVE = new QName(DCTERMS, "alternative", "dcterms");
+    private final QName DCTERMS_ABSTRACT = new QName(DCTERMS, "abstract", "dcterms");
+    private final QName DCTERMS_CONFORMSTO = new QName(DCTERMS, "conformsTo", "dcterms");
+    private final QName DCTERMS_PROVENANCE = new QName(DCTERMS, "provenance", "dcterms");
+    private final QName XSI_TYPE = new QName(XSI, "type", "xsi");
 
 
     /**
@@ -187,7 +185,8 @@ public abstract class BaseResource {
      */
     protected Community communityFromEntry(Entry entry) throws SQLException, AuthorizeException, IOException {
 
-        String parentId = entry.getExtension(DCTERMS_ISPARTOF).getText();
+        String parentId = entry.getExtension(DCTERMS_ISPARTOF) != null?entry.getExtension(DCTERMS_ISPARTOF).getText(): null;
+        String communityId = entry.getExtension(DC_IDENTIFIER) != null?entry.getExtension(DC_IDENTIFIER).getText(): null;
         Community parentCommunity = null;
 
         if (StringUtils.isNotBlank(parentId)) {
@@ -198,7 +197,7 @@ public abstract class BaseResource {
         if (parentCommunity != null)
             community = parentCommunity.createSubcommunity();
         else
-            community = Community.create(null, context);
+            community = Community.find(context, Integer.parseInt(communityId));
 
         String name = entry.getExtension(DC_TITLE).getText();
         String copyrightText = entry.getExtension(DC_RIGHTS).getText();
@@ -274,17 +273,50 @@ public abstract class BaseResource {
      *
      * @param entry Atom {@link Entry} containing the details
      */
-    protected Collection collectionFromEntry(Entry entry) {
+    protected Collection collectionFromEntry(Entry entry) throws SQLException, AuthorizeException, IOException {
 
-        try {
-            String content = entry.getContent();
-            JAXBContext jaxbContext = JAXBContext.newInstance(Community.class);
-            Collection collection = (Collection) jaxbContext.createUnmarshaller().unmarshal(new StringReader(content));
-            return collection;
-        } catch (JAXBException e) {
-            log.error(e);
-            return null;
+        String parentId = entry.getExtension(DCTERMS_ISPARTOF) != null?entry.getExtension(DCTERMS_ISPARTOF).getText(): null;
+        String collectionId = entry.getExtension(DC_IDENTIFIER) != null?entry.getExtension(DC_IDENTIFIER).getText(): null;
+        
+        Community parentCommunity = null;
+        Collection collection = null;
+        
+        if (StringUtils.isNotBlank(parentId)) {            
+				parentCommunity = Community.find(context, Integer.parseInt(parentId));			
         }
+
+        if (parentCommunity != null)
+        	collection = parentCommunity.createCollection();
+        else
+        	collection = Collection.find(context, Integer.parseInt(collectionId));
+
+        String name = entry.getExtension(DC_TITLE).getText();
+        String copyrightText = entry.getExtension(DC_RIGHTS).getText();
+        String shortDescription = entry.getExtension(DCTERMS_ALTERNATIVE).getText();
+        String introductoryText = entry.getExtension(DCTERMS_ABSTRACT).getText();
+        String licenseText = entry.getExtension(DCTERMS_CONFORMSTO).getText();
+        String provenanceText = entry.getExtension(DCTERMS_PROVENANCE).getText();
+
+        // If they don't have a name then make it untitled.
+        if (StringUtils.isBlank(name)) name = "Untitled";
+
+        // If empty, make it null.
+        // @see org.dspace.app.xmlui.aspect.administrative.FlowContainerUtils#processCreateCommunity
+        if (StringUtils.isBlank(shortDescription)) shortDescription = null;
+        if (StringUtils.isBlank(introductoryText)) introductoryText = null;
+        if (StringUtils.isBlank(copyrightText)) copyrightText = null;
+
+        collection.setMetadata("name", name);
+        collection.setMetadata("copyright_text", copyrightText);
+        collection.setMetadata("short_description", shortDescription);
+        collection.setMetadata("introductory_text", introductoryText);
+        collection.setMetadata("license", licenseText);
+        collection.setMetadata("provenance_description", provenanceText);
+
+        collection.update();
+        context.commit();
+        
+            return collection;
     }
 
     /**
@@ -304,15 +336,31 @@ public abstract class BaseResource {
             log.error(e);
         }
         String name = collection.getName();
+        String handle = collection.getHandle();
+        String shortDescription = collection.getMetadata("short_description");
+        String introductoryText = collection.getMetadata("introductory_text");
+        String copyrightText = collection.getMetadata("copyright_text");
+        String licenseText = collection.getMetadata("license");
+        String provenanceText = collection.getMetadata("provenance_description");
 
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(Community.class);
-            StringWriter stringWriter = new StringWriter();
-            jaxbContext.createMarshaller().marshal(collection, stringWriter);
-            entry.setContent(stringWriter.toString(), "application/xml");
-        } catch (JAXBException e) {
-            log.error(e);
-        }
+
+        entry.addExtension(DC_TYPE).setText("Community");
+        entry.addExtension(DC_TITLE).setText(name);
+        entry.addExtension(DC_RIGHTS).setText(copyrightText);
+        entry.addExtension(DCTERMS_ALTERNATIVE).setText(shortDescription);
+        entry.addExtension(DCTERMS_ABSTRACT).setText(introductoryText);
+        entry.addExtension(DCTERMS_CONFORMSTO).setText(licenseText);
+        entry.addExtension(DCTERMS_PROVENANCE).setText(provenanceText);
+        entry.addExtension(DC_IDENTIFIER).setText(String.valueOf(id));
+        entry.addExtension(DCTERMS_ISPARTOF).setText(String.valueOf(parentId));
+
+        Element doi = entry.addExtension(DC_IDENTIFIER);
+        doi.setAttributeValue(XSI_TYPE, "dcterms:DOI");
+        doi.setText("");
+
+        Element url = entry.addExtension(DC_IDENTIFIER);
+        url.setAttributeValue(XSI_TYPE, "dcterms:URL");
+        url.setText(handle);
 
         entry.setTitle(name);
         entry.setUpdated(new Date());
