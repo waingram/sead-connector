@@ -30,8 +30,8 @@ import org.dspace.core.ConfigurationManager;
  */
 @Path("/communities/{communityID}/collections")
 public class CollectionsResource extends BaseResource {
-	
-	
+
+
     public CollectionsResource(@Context UriInfo uriInfo,
                                @Context SecurityContext securityContext,
                                @Context HttpServletRequest request) {
@@ -54,17 +54,17 @@ public class CollectionsResource extends BaseResource {
             "application/xml",
             "text/xml"})
     public Response get(@PathParam("communityID") int parentCommunityID) {
-    	
+
     	Feed feed = abdera.newFeed();
         feed.setId("collections");
         feed.setTitle(ConfigurationManager.getProperty("dspace.name"));
         feed.setUpdated(new Date());
         feed.addLink(uriInfo.getRequestUriBuilder().build().toString(), "self");
-    	
+
     	try {
-    		
+
 	        List<Collection> collectionList = findAuthorizedCollections(Community.find(context, parentCommunityID));
-	        
+
 	        for (Collection collection : collectionList) {
 	        	Entry entry = abdera.newEntry();
 			    entry.setId(String.valueOf(collection.getID()));
@@ -72,9 +72,9 @@ public class CollectionsResource extends BaseResource {
 			    entry.setRights(collection.getLicense());
 			    entry.addLink(ConfigurationManager.getProperty("sword.deposit.url"));
 			    //contentHelper.setContentEntity(entry, MediaType.APPLICATION_XML_TYPE, collection);
-			    feed.addEntry(entry);				
-	        }        	
-	        
+			    feed.addEntry(entry);
+	        }
+
         } catch (SQLException e) {
         	log.error(e);
             context.abort();
@@ -98,7 +98,7 @@ public class CollectionsResource extends BaseResource {
             "application/xml",
             "text/xml"})
     public Response post(Entry entry, @PathParam("communityID") int parentCommunityID) {
-    	
+
     	entry.addExtension(DCTERMS_ISPARTOF).setText(String.valueOf(parentCommunityID));
         Collection collection = null;
         try {
@@ -130,6 +130,7 @@ public class CollectionsResource extends BaseResource {
         //             entity(e.getMessage()).
         //             build();
         }
+
 
         Response.ResponseBuilder respBuilder = Response.created(uriInfo.getRequestUriBuilder().path(String.valueOf(collection.getID())).build());
         respBuilder.header("Handle","http://"+uriInfo.getRequestUri().getHost()+":"+uriInfo.getRequestUri().getPort()+"/sword/deposit/"+String.valueOf(collection.getHandle()));
