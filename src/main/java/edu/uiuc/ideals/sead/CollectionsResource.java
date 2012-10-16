@@ -130,8 +130,10 @@ public class CollectionsResource extends BaseResource {
         //             entity(e.getMessage()).
         //             build();
         }
-        
-        return Response.created(uriInfo.getRequestUriBuilder().path(String.valueOf(collection.getID())).build()).
+
+        Response.ResponseBuilder respBuilder = Response.created(uriInfo.getRequestUriBuilder().path(String.valueOf(collection.getID())).build());
+        respBuilder.header("Handle","http://"+uriInfo.getRequestUri().getHost()+":"+uriInfo.getRequestUri().getPort()+"/sword/deposit/"+String.valueOf(collection.getHandle()));
+        return respBuilder.
                 build();
 
     }
