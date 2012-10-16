@@ -137,9 +137,11 @@ public class CommunityResource extends BaseResource {
                     entity(e.getMessage()).
                     build();
         }
-        return Response.
-                    created(uriInfo.getRequestUriBuilder().path(community.getHandle()).build()).
-                    build();
+        String path = uriInfo.getRequestUri().getPath();
+        path = path.substring(0,path.lastIndexOf('/')+1);
+        Response.ResponseBuilder respBuilder = Response.created(uriInfo.getRequestUriBuilder().replacePath(path+String.valueOf(community.getID())).build());
+        respBuilder.header("Handle","http://"+uriInfo.getRequestUri().getHost()+":"+uriInfo.getRequestUri().getPort()+"/jspui/handle/"+String.valueOf(community.getHandle()));
+        return respBuilder.build();
 
     }
     
